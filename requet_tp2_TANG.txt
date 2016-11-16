@@ -1,0 +1,85 @@
+Première version
+1.
+CREATE TABLE pilote(id_pilote INT primary key,
+nom_pilote TEXT,
+nom_ville TEXT);
+
+CREATE TABLE avion(id_avion INT primary key, 
+nom_type TEXT,
+nb_place INT,
+loc_avion TEXT);
+
+
+CREATE TABLE vol(id_vol INT primary key,
+id_pilote INT REFERENCES pilote,
+id_avion INT REFERENCES avion,
+loc_dep TEXT,
+loc_arr TEXT,
+heure_dep TIME,
+heure_arr TIME);
+
+2.
+\i BASEDONNE/avions.txt
+
+3.
+a.
+select nom_pilote from pilote where id_pilote in (select distinct id_pilote from vol where loc_dep='Paris Orly');
+
+b.
+select id_avion,loc_avion from avion where loc_avion!='Paris Orly' and nb_place>200;
+
+c.
+select nom_pilote from pilote where id_pilote in
+(select id_pilote from vol where id_avion in (select id_avion from avion where nom_type like 'ATR%'));
+
+select nom_pilote from (select * from (select id_pilote from vol inner join avion on vol.id_avion=avion.id_avion where nom_type='ATR44')as id inner join pilote on pilote.id_pilote=id.id_pilote) as nom_pilote;
+
+d.
+select loc_arr from vol where loc_dep like 'Paris%' and id_avion in(select id_avion from avion where nb_place>(select distinct nb_place from avion where nom_type='A300'));
+
+select loc_arr from vol where loc_dep like 'Paris%'
+intersect
+select loc_arr from vol where id_avion in(select id_avion from avion where nb_place>(select distinct nb_place from avion where nom_type='A300'))
+
+e.
+select nom_type from avion where nb_place>(select max(nb_place) from avion where loc_avion like 'Marseille%')
+
+f.
+select nom_pilote from pilote where id_pilote not in(select id_pilote from vol);
+
+select id_pilote from pilote
+except
+select id_pilote from vol
+
+select nom_pilote from pilote left outer join vol on pilote.id_pilote=vol.id_pilote where vol.id_pilote is null;
+
+
+
+Deuxième version.
+1.
+alter table avion rename column nom_type to nom_avion;
+alter table avion add id_type_avion INT;
+alter table avion add id_aeroport_avion INT;
+
+
+CREATE TABLE type(
+id_type INT primary key,
+nom_type TEXT,
+nb_place INT
+);
+
+CREATE TABLE licence_pilote(
+id_type_licence INT primary key,
+nom_licence TEXT primary key
+);
+
+CREATE TABLE licence_type(
+nom_licence TEXT primary key,
+id_type_licence INT primary key references type(id_type)
+);
+
+CREATE TABLE aeroport(
+id_aeroport INT primary key,
+nom_aeroport TEXT,
+nom_ville TEXT
+);
