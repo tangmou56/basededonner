@@ -57,10 +57,37 @@ select nom_pilote from pilote left outer join vol on pilote.id_pilote=vol.id_pil
 
 Deuxième version.
 1.
-alter table avion rename column nom_type to nom_avion;
-alter table avion add id_type_avion INT;
-alter table avion add id_aeroport_avion INT;
+alter table avion DROP COLUMN nom_type;
+alter table avion DROP COLUMN nb_place;
+alter table avion DROP COLUMN loc_avion;
+alter table avion add id_type INT references type;
+alter table avion add id_aeroport INT references aeroport;
 
+alter table vol add id_aeroport_dep INT references aeroport;
+alter table vol add id_aeroport_arr INT references aeroport;
+
+update vol set id_aeroport_dep=1 where loc_dep='Avignon';
+update vol set id_aeroport_dep=2 where loc_dep='Bordeaux';
+update vol set id_aeroport_dep=3 where loc_dep='Marseille Marignane';
+update vol set id_aeroport_dep=4 where loc_dep='Nancy';
+update vol set id_aeroport_dep=5 where loc_dep='Paris Orly';
+update vol set id_aeroport_dep=6 where loc_dep='Paris Roissy';
+update vol set id_aeroport_dep=7 where loc_dep='Strasbourg';
+update vol set id_aeroport_dep=8 where loc_dep='Toulouse';
+update vol set id_aeroport_dep=9 where loc_dep='Lyon';
+
+update vol set id_aeroport_arr=1 where loc_dep='Avignon';
+update vol set id_aeroport_arr=2 where loc_dep='Bordeaux';
+update vol set id_aeroport_arr=3 where loc_dep='Marseille Marignane';
+update vol set id_aeroport_arr=4 where loc_dep='Nancy';
+update vol set id_aeroport_arr=5 where loc_dep='Paris Orly';
+update vol set id_aeroport_arr=6 where loc_dep='Paris Roissy';
+update vol set id_aeroport_arr=7 where loc_dep='Strasbourg';
+update vol set id_aeroport_arr=8 where loc_dep='Toulouse';
+update vol set id_aeroport_arr=9 where loc_dep='Lyon';
+
+alter table vol DROP COLUMN loc_dep;
+alter table vol DROP COLUMN loc_arr;
 
 CREATE TABLE type(
 id_type INT primary key,
@@ -68,18 +95,50 @@ nom_type TEXT,
 nb_place INT
 );
 
-CREATE TABLE licence_pilote(
-id_type_licence INT primary key,
-nom_licence TEXT primary key
-);
-
-CREATE TABLE licence_type(
-nom_licence TEXT primary key,
-id_type_licence INT primary key references type(id_type)
-);
 
 CREATE TABLE aeroport(
 id_aeroport INT primary key,
 nom_aeroport TEXT,
 nom_ville TEXT
 );
+
+CREATE TABLE licence_type(
+nom_licence TEXT,
+id_type INT,
+primary key(nom_licence,id_type)
+);
+
+CREATE TABLE licence_pilote(
+id_pilote INT,
+nom_licence TEXT,
+primary key(id_pilote,nom_licence)
+);
+
+
+3.a.
+alter table pilote add sal INT default 5000
+
+update pilote set sal=7500 where id_pilote in 
+(select id_pilote from pilote where id_pilote in (select id_pilote from vol));
+
+b.
+
+
+
+
+
+select * from pilote as A
+
+inner join pilote as B 
+
+on A.nom_ville=B.nom_ville
+
+
+where A.nom_ville=B.nom_ville and A.nom_pilote!=B.nom_pilote;
+
+
+//
+update avion set id_type_avion=(select id_type from type where avion.nom_type = type.nom_type);
+//
+
+
