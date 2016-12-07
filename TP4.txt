@@ -1,0 +1,74 @@
+2.
+\i BASEDONNE/sw7.txt
+
+
+create table chauffeur(
+id_chauffeur int primary key,
+nom text,
+prenom text,
+adr text,
+id_station_c int references station
+);
+
+create table permis(
+id_chauffeur int ,
+cat_perm_c text ,
+primary key(id_chauffeur,cat_perm_c),
+foreign key (id_chauffeur) references chauffeur (id_chauffeur)
+);
+
+
+3.
+alter table station add nom_zone text;
+update station set nom_zone=(select nom_zone from zone where station.id_zone=zone.id_zone);
+alter table station DROP COLUMN id_zone;
+
+alter table position add nom_zone text;
+update position set nom_zone=(select nom_zone from zone where position.id_zone=zone.id_zone);
+alter table position DROP COLUMN id_zone;
+
+4.
+alter table plein add type_carbu text;
+
+update plein set type_carbu=(
+select type_carbu from
+(select * from modele
+natural join vehicule )as a
+where plein.id_vehicule=a.id_vehicule
+)
+
+5.
+select count(*) from entretien where date(date_e) between '2014-01-01' and '2014-12-31'
+
+6.
+select id_chauffeur,nom,prenom from chauffeur
+where
+id_station_c=(select id_station from station where nom_station='Geonosis');
+
+7.
+ select distinct(nom_vehicule) from 
+(select * from vehicule
+natural join plein) as a
+ where id_modele in 
+(select id_modele from modele where nom_modele='cargo YT-1300')
+and
+date(date_p)>'2015-08-11';
+
+8.
+
+select sum(qte_carbu)*100/sum(nb_km) from
+(select * from plein
+natural join
+(
+select * from modele
+natural join vehicule) as a) as b
+where
+nom_modele='voilier solaire geonosien'
+
+9.
+
+
+
+
+
+sahar.ghannay@univ-lemans.fr
